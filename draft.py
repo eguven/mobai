@@ -2,6 +2,8 @@ import uuid
 
 import numpy
 
+from util import a_star_search
+
 
 class IDComparable(object):
     '''equality and uniqueness by id property'''
@@ -55,7 +57,8 @@ class UnitBase(IDComparable):
 
 
 class Building(object):
-    pass
+    def move(self, *args):
+        raise NotImplementedError
 
 
 class Tower(UnitBase, Building):
@@ -82,13 +85,37 @@ class Unit(UnitBase):
         self.vision = 2
         self.hit = 1
         self.attack = 1
-        self.destination = None
-        self.path = None
+        self.target = None  # tile or unit
+        self.path = []
 
-    def move(self, X):
+    def move(self, next_tile):
+        '''move unit between tiles'''
+        assert self.path and self.path[0] == next_tile
+        assert self._tile.is_neighbor(next_tile)
+        self._tile.remove_unit(self)
+        next_tile.add_unit(self)
+        self.path = self.path[1:]
+
+    def _set_move_target(self, target):
+        if self._tile == target:
+            return  # TODO: might use for feedback
+        self.path = self._tile.path_to(target)
+        self.target = target
+
+    def _set_attack_target(self, target):
         raise NotImplementedError
-        # set target
-        # set path
+
+    def set_target(self, target):
+        if isinstance(target, GameTile):
+            self._set_move_target(target)
+        else:
+            # Check if in vision to set
+            # + chasing considerations, vision during chase, as well as action/move/unit evaluation order
+            # maybe set_target for tile and re-evaluate path every turn
+            raise NotImplementedError
+
+    def end_of_turn(self):
+        raise NotImplementedError
 
 
 class Player(IDComparable):
@@ -104,6 +131,10 @@ class GameTile(object):
         self.y = y
         self.occupants = occupants if occupants is not None else []
         self._map = _map
+
+    # reasonable but will not until a concrete use-case arises
+    # def __hash__(self):
+    #     return hash((self.x, self.y))
 
     def __str__(self):
         return 'GameTile(%dx%d)' % (self.x, self.y)
@@ -125,6 +156,20 @@ class GameTile(object):
     def grid_index(self):
         '''in 2d array, x is the second index (column) and y is the first (row)'''
         return (self.y, self.x)
+
+    def neighbor_positions(self):
+        # TODO: maybe right side tiles start neighbor list at 9-oclock (-1, 0)
+        # while left side tiles start at 3 oclock (+1, 0) for symmetry
+        x, y = self.x, self.y
+        positions = [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]
+        return [pos for pos in positions if self._map.is_valid_position(*pos)]
+
+    def is_neighbor(self, tile):
+        tile_pos = (tile.x, tile.y)
+        return tile_pos in self.neighbor_positions()
+
+    def path_to(self, tile):
+        return self._map.shortest_path(self, tile)
 
     def units_by_player(self, player, filters=None, sort_key=None):
         '''return an iterable of units of the tile for player, optional filter:
@@ -228,6 +273,24 @@ class Map(object):
         if self.size_x % 2 == 1:
             raise NotImplementedError
         return (player.id == 0 and x < self.size_x / 2) or (player.id == 1 and x >= self.size_x / 2)
+
+    def get_tile(self, x, y):
+        assert self.is_valid_position(x, y), 'x=%s y=%s is not a valid position' % (x, y)
+        return self.map[y][x]
+
+    def get_neighbors_of_tile(self, tile):
+        return [self.get_tile(x, y) for x, y in tile.neighbor_positions()]
+
+    def shortest_path(self, start, end):
+        '''Returns the list of steps on the shortest path between start and end.
+        Works with GameTile or tuples, return type will match be the input type
+        '''
+        assert type(start) == type(end)
+        assert isinstance(start, (tuple, GameTile))
+        if isinstance(start, GameTile):
+            path = a_star_search(self, (start.x, start.y), (end.x, end.y))
+            return [self.get_tile(*pos) for pos in path]
+        return a_star_search(self, start, end)
 
     def as_string(self):
         '''ascii is not dead'''
