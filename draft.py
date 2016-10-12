@@ -104,6 +104,59 @@ class UnitBase(IDComparable):
         raise NotImplementedError
         self.action_points -= 1
 
+    def set_auto_attack(self):
+        '''scan for unit in hit range, return True if a target was set'''
+        raise NotImplementedError
+
+    def end_of_turn(self):
+        '''
+        * (*) if no target and path set and mobile, maybe alert?
+        * (*) if no target and not mobile, auto-attack
+        * ATTACK RESOLUTION: if target is set & is UnitBase, evaluate if can hit. If True, attack.
+        * CHASE RESOLUTION (no action spent): if target is set & is UnitBase
+          * if still in vision, re-path (+1 tile to current path) if still in vision
+          * if not in vision, clear target (if path available, will still move later)
+        * MOVE RESOLUTION: if tile in path & can move, move. Else, reset path.
+
+        * Extra: Buildings with no action should scan for attack
+        '''
+        if self.target is None and self.mobile and not self.path:
+            return  # TODO: maybe alert
+        elif self.target is None and not self.mobile:
+            if self.set_auto_attack():
+                self.end_of_turn()
+        # attack resolution
+        if isinstance(self.target, UnitBase) and self.can_hit(target):
+            self.attack()
+            return  # NOTE: depending on how we handle multi-action units, this may change
+        # chase resolution & target reset
+        elif isinstance(self.target, UnitBase):
+            if self.is_in_vision(self.target) and self.mobile:
+                self.set_target(self.target)  # re-path
+            elif self.is_in_vision(self.target):
+                # I'ma building, I'm hopeful
+                return
+            else:
+                # lost the guy, #foreveralone probably around the corner tho, #stalkitmaybe?
+                self.target = None
+        # sanity-check
+        if not self.mobile and hasattr(self, path):
+            print('WTF', self, type(self), self.id)  # TODO: logging
+            del self.path
+            return
+        if not hasattr(self, 'path'):
+            return
+        # move resolution
+        elif self.path and self.can_move_to(self.path[0]):
+            self.move()
+            return
+        elif self.path:
+            # this should't really happen right? like, did I teleport?
+            self.path = []
+            return
+        print('Yep, you forgot something', self, type(self), self.id)  # TODO: logging
+
+
 class Building(object):
     def move(self, *args):
         raise TypeError
