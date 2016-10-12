@@ -92,6 +92,9 @@ class UnitBase(IDComparable):
     def attack(target=None):
         # if no target, prio building > superunit > unit
         pass
+    def _set_attack_target(self, target):
+        assert self.is_in_vision(target)
+        self.target = target
 
 
 class Building(object):
@@ -141,20 +144,15 @@ class Unit(UnitBase):
         self.target = target
 
     def _set_attack_target(self, target):
-        raise NotImplementedError
+        super(self, Unit)._set_attack_target(target)  # would raise if not if vision
+        self._set_move_target(target)
 
     def set_target(self, target):
         if isinstance(target, GameTile):
             assert self.mobile
             self._set_move_target(target)
         else:
-            # Check if in vision to set
-            # + chasing considerations, vision during chase, as well as action/move/unit evaluation order
-            # maybe set_target for tile and re-evaluate path every turn
-            raise NotImplementedError
-
-    def end_of_turn(self):
-        raise NotImplementedError
+            self._set_attack_target(target)
 
     def can_attack(self, target):
         if self.player == target.player:
