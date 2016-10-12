@@ -27,6 +27,7 @@ class UnitBase(IDComparable):
         self.vision = 0
         self.hit = 0
         self.attack = 0
+        self.target = None  # tile or unit
         self.player = player
         self._tile = None
 
@@ -95,7 +96,7 @@ class UnitBase(IDComparable):
 
 class Building(object):
     def move(self, *args):
-        raise NotImplementedError
+        raise TypeError
 
 
 class Tower(UnitBase, Building):
@@ -122,11 +123,11 @@ class Unit(UnitBase):
         self.vision = 2
         self.hit = 1
         self.attack = 1
-        self.target = None  # tile or unit
         self.path = []
 
     def move(self, next_tile):
         '''move unit between tiles'''
+        assert self.mobile
         assert self.path and self.path[0] == next_tile
         assert self._tile.is_neighbor(next_tile)
         self._tile.remove_unit(self)
@@ -144,6 +145,7 @@ class Unit(UnitBase):
 
     def set_target(self, target):
         if isinstance(target, GameTile):
+            assert self.mobile
             self._set_move_target(target)
         else:
             # Check if in vision to set
@@ -154,6 +156,10 @@ class Unit(UnitBase):
     def end_of_turn(self):
         raise NotImplementedError
 
+    def can_attack(self, target):
+        if self.player == target.player:
+            return False
+        return self.can_hit(target)
 
 class Player(IDComparable):
     def __init__(self, id):
