@@ -28,6 +28,8 @@ class UnitBase(IDComparable):
         self.hit = 0
         self.attack = 0
         self.target = None  # tile or unit
+        self.action_points = 1
+
         self.player = player
         self._tile = None
 
@@ -89,13 +91,18 @@ class UnitBase(IDComparable):
         elif isinstance(target, tuple):
             return target in self.neighbor_positions()
 
-    def attack(target=None):
-        # if no target, prio building > superunit > unit
-        pass
     def _set_attack_target(self, target):
         assert self.is_in_vision(target)
         self.target = target
 
+    def attack(self):
+        #  sanity checks with target
+        assert self.target
+        assert self.can_hit(self.target)
+        assert self.action_points
+        # actually attack
+        raise NotImplementedError
+        self.action_points -= 1
 
 class Building(object):
     def move(self, *args):
@@ -133,9 +140,11 @@ class Unit(UnitBase):
         assert self.mobile
         assert self.path and self.path[0] == next_tile
         assert self._tile.is_neighbor(next_tile)
+        assert self.action_points
         self._tile.remove_unit(self)
         next_tile.add_unit(self)
         self.path = self.path[1:]
+        self.action_points -= 1
 
     def _set_move_target(self, target):
         if self._tile == target:
