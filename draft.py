@@ -38,18 +38,55 @@ class UnitBase(IDComparable):
     def y(self):
         return self._tile.y
 
-    def visible_positions(self):
+    @property
+    def mobile(self):
+        return not isinstance(self, Building)
+
+    def positions_within_range(self, reach):
         positions = set()
         x, y = self.x, self.y
         positions.add((x, y))
-        for v in range(1, self.vision + 1):
-            for p in [(x + v, y), (x, y + v), (x - v, y), (x, y - v)]:
+        for delta in range(1, reach + 1):
+            for p in [(x + delta, y), (x, y + delta), (x - delta, y), (x, y - delta)]:
                 if self._tile._map.is_valid_position(*p):
                     positions.add(p)
         return positions
 
+    def visible_positions(self):
+        '''can see/within vision value'''
+        return self.positions_within_range(self.vision)
+
+    def hit_positions(self):
+        '''within hit value'''
+        return self.positions_within_range(self.hit)
+
     def visible_units(self):
-        pass
+        units = []
+        for tile in [self._tile._map.get_tile(*pos) for pos in self.visible_positions()]:
+            units.extend(tile.occupants)
+        return units
+
+    def is_in_vision(self, target):
+        '''is the target (UnitBase/GameTile) visible'''
+        assert isinstance(target, (UnitBase, GameTile))
+        pos = (target.x, target.y)
+        return pos in self.visible_positions()
+
+    def can_hit(self, target):
+        assert isinstance(target, UnitBase)
+        pos = (target.x, target.y)
+        return pos in self.hit_positions()
+
+    def can_move_to(self, target):
+        '''can the unit move to target (tuple/GameTile)'''
+        # NOTE: needs change if we have units that can move >1 in a turn
+        assert isinstance(target, (tuple, GameTile))
+        if not self.mobile:
+            return False
+        if isinstance(target, GameTile):
+            return self.is_neighbor(target)
+        elif isinstance(target, tuple):
+            return target in self.neighbor_positions()
 
     def attack(target=None):
         # if no target, prio building > superunit > unit
