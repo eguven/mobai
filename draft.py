@@ -84,6 +84,11 @@ class UnitBase(IDComparable):
         pos = (target.x, target.y)
         return pos in self.visible_positions()
 
+    def can_act(self):
+        '''has action points'''
+        assert 0 <= self.action_points
+        return 0 < self.action_points
+
     def can_hit(self, target):
         assert isinstance(target, UnitBase)
         if self.player == target.player:
@@ -98,9 +103,9 @@ class UnitBase(IDComparable):
         if not self.mobile:
             return False
         if isinstance(target, GameTile):
-            return self.is_neighbor(target)  # NOTE: would change for multi-action, maybe
+            return self._tile.is_neighbor(target)  # NOTE: would change for multi-action, maybe
         elif isinstance(target, tuple):
-            return target in self.neighbor_positions()
+            return target in self._tile.neighbor_positions()
 
     def _set_attack_target(self, target):
         assert self.is_in_vision(target)
@@ -114,6 +119,7 @@ class UnitBase(IDComparable):
             self._set_attack_target(target)
 
     def attack(self):
+        '''attack current target, decrease action points and target health'''
         #  sanity checks with target
         assert self.target
         assert self.can_hit(self.target)
