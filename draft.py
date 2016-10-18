@@ -63,10 +63,19 @@ class UnitBase(IDComparable):
         '''within hit value'''
         return self.positions_within_range(self.hit)
 
-    def visible_units(self):
+    def visible_units(self, non_player_only=False):
         units = []
         for tile in [self._tile._map.get_tile(*pos) for pos in self.visible_positions()]:
-            units.extend(tile.occupants)
+            if non_player_only:
+                units.extend([unit for unit in tile.occupants if unit.player != self.player])
+            else:
+                units.extend(tile.occupants)
+        return units
+
+    def hittable_units(self):  # hittable? really?
+        units = []
+        for tile in [self._tile._map.get_tile(*pos) for pos in self.hit_positions()]:
+            units.extend([unit for unit in tile.occupants if unit.player != self.player])
         return units
 
     def is_in_vision(self, target):
@@ -77,6 +86,8 @@ class UnitBase(IDComparable):
 
     def can_hit(self, target):
         assert isinstance(target, UnitBase)
+        if self.player == target.player:
+            return False
         pos = (target.x, target.y)
         return pos in self.hit_positions()
 
@@ -113,7 +124,12 @@ class UnitBase(IDComparable):
 
     def set_auto_attack(self):
         '''scan for unit in hit range, return True if a target was set'''
-        raise NotImplementedError
+        # TODO: log this
+        can_attack = self.hittable_units()
+        if can_attack:
+            self.set_target(can_attack[0])
+            return True
+        return False
 
     def end_of_turn(self):
         '''
