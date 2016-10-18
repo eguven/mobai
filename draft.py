@@ -87,7 +87,7 @@ class UnitBase(IDComparable):
         if not self.mobile:
             return False
         if isinstance(target, GameTile):
-            return self.is_neighbor(target)
+            return self.is_neighbor(target)  # NOTE: would change for multi-action, maybe
         elif isinstance(target, tuple):
             return target in self.neighbor_positions()
 
@@ -95,13 +95,20 @@ class UnitBase(IDComparable):
         assert self.is_in_vision(target)
         self.target = target
 
+    def set_target(self, target):
+        if isinstance(target, GameTile):
+            assert self.mobile
+            self._set_move_target(target)
+        else:
+            self._set_attack_target(target)
+
     def attack(self):
         #  sanity checks with target
         assert self.target
         assert self.can_hit(self.target)
-        assert self.action_points
+        assert 0 < self.action_points
         # actually attack
-        raise NotImplementedError
+        self.target.health -= self.attack
         self.action_points -= 1
 
     def set_auto_attack(self):
@@ -141,7 +148,7 @@ class UnitBase(IDComparable):
                 self.target = None
         # sanity-check
         if not self.mobile and hasattr(self, path):
-            print('WTF', self, type(self), self.id)  # TODO: logging
+            print('WTF: not mobile with path', self, type(self), self.id)  # TODO: logging
             del self.path
             return
         if not hasattr(self, 'path'):
@@ -152,6 +159,7 @@ class UnitBase(IDComparable):
             return
         elif self.path:
             # this should't really happen right? like, did I teleport?
+            print('WTF: next tile in path unreachable', self, type(self), self.id)  # TODO: logging
             self.path = []
             return
         print('Yep, you forgot something', self, type(self), self.id)  # TODO: logging
@@ -193,7 +201,7 @@ class Unit(UnitBase):
         assert self.mobile
         assert self.path and self.path[0] == next_tile
         assert self._tile.is_neighbor(next_tile)
-        assert self.action_points
+        assert 0 < self.action_points
         self._tile.remove_unit(self)
         next_tile.add_unit(self)
         self.path = self.path[1:]
@@ -201,6 +209,7 @@ class Unit(UnitBase):
 
     def _set_move_target(self, target):
         if self._tile == target:
+            assert not self.path  # sanity
             return  # TODO: might use for feedback
         self.path = self._tile.path_to(target)
         self.target = target
@@ -209,17 +218,6 @@ class Unit(UnitBase):
         super(self, Unit)._set_attack_target(target)  # would raise if not if vision
         self._set_move_target(target)
 
-    def set_target(self, target):
-        if isinstance(target, GameTile):
-            assert self.mobile
-            self._set_move_target(target)
-        else:
-            self._set_attack_target(target)
-
-    def can_attack(self, target):
-        if self.player == target.player:
-            return False
-        return self.can_hit(target)
 
 class Player(IDComparable):
     def __init__(self, id):
