@@ -2,8 +2,6 @@ import uuid
 
 from .base import IDComparable
 
-# TODO: All vision calculations use unit vision, switch to player vision
-
 
 class UnitBase(IDComparable):
     '''Anything that sits on a GameTile is based on this, subclasses/mixins
@@ -66,13 +64,6 @@ class UnitBase(IDComparable):
             units.extend([unit for unit in tile.occupants if unit.player != self.player])
         return units
 
-    def is_in_vision(self, target):
-        '''is the target (UnitBase/GameTile) visible'''
-        from .tile import GameTile
-        assert isinstance(target, (UnitBase, GameTile))
-        pos = (target.x, target.y)
-        return pos in self.visible_positions()
-
     def can_act(self):
         '''has action points'''
         assert 0 <= self.action_points
@@ -98,7 +89,7 @@ class UnitBase(IDComparable):
             return target in self._tile.neighbor_positions()
 
     def _set_attack_target(self, target):
-        assert self.is_in_vision(target)
+        assert self.player.has_vision(target)
         self.target = target
 
     def set_target(self, target):
@@ -147,7 +138,7 @@ class UnitBase(IDComparable):
         '''chase as in re-path to target, does not move, does not require action points'''
         if not isinstance(self.target, UnitBase):
             return
-        elif self.is_in_vision(self.target) and self.mobile:
+        elif self.player.has_vision(self.target) and self.mobile:
             self.set_target(self.target)  # re-path
         else:
             # either I'mma building, or I lost the guy #foreveralone
