@@ -86,8 +86,7 @@ class Map(object):
         '''
         if x < 0 or y < 0:
             return False
-        max_y, max_x = self.map.shape
-        if x >= max_x or y >= max_y:
+        if x >= self.size_x or y >= self.size_y:
             return False
         if x in self.building_x_markers or y in self.building_y_markers:
             return True
