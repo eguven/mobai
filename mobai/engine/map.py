@@ -56,21 +56,23 @@ class Map(object):
                 self.map[y][x].add_unit(Tower(player))
                 self.tower_positions.append((x, y))
 
-    def vision_by_player(self, player):
-        in_vision_positions = set()
-        # iterate over map
+    def tiles(self):
         for y in range(self.size_y):
             for x in range(self.size_x):
                 # make sure it's a valid tile
                 if self.map[y][x] is None:
                     continue
-                # get players units
-                units = self.map[y][x].units_by_player(player, sort_key=lambda u: u.vision)
-                if not units:
-                    continue
-                # use the unit with max vision to calculate
-                max_vision_unit = units[-1]
-                in_vision_positions.update(max_vision_unit.visible_positions())
+                yield self.map[y][x]
+
+    def vision_by_player(self, player):
+        in_vision_positions = set()
+        for tile in self.tiles():
+            units = tile.units_by_player(player, sort_key=lambda u: u.vision)
+            if not units:
+                continue
+            # use the unit with max vision to calculate
+            max_vision_unit = units[-1]
+            in_vision_positions.update(max_vision_unit.visible_positions())
         return in_vision_positions
 
     def tiles_visible_by_player(self, player):
@@ -121,9 +123,8 @@ class Map(object):
 
     def get_all_units(self):
         units = []
-        for tile in self.map.flatten():
-            if isinstance(tile, GameTile):
-                units.extend(tile.occupants)
+        for tile in self.tiles:
+            units.extend(tile.occupants)
         return units
 
     def get_forts(self, player=None):
@@ -134,6 +135,16 @@ class Map(object):
         if player is not None:
             return [fort for fort in all_forts if fort.player == player]
         return all_forts
+
+    def to_array(self):
+        data = [[None for x in range(self.size_x)] for y in range(self.size_y)]
+        for y in range(self.size_y):
+            for x in range(self.size_x):
+                if self.map[y][x] is None:
+                    data[y][x] = None
+                else:
+                    data[y][x] = self.map[y][x].to_dict()
+        return data
 
     def as_string(self):
         '''ascii is not dead'''

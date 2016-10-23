@@ -151,3 +151,6 @@ This is the object each player receives at the beginning of the turn.
         'turn': 1,                         # current turn 0-
         'map': Map[21][36],                # game map as defined above
     }
+
+An example gist of full gamestate: <https://gist.github.com/eguven/43cf61e1e84ade308aa4301ea78cad88>. Note
+the empty targets and paths as well as the fact that Fog of War is ignored here.

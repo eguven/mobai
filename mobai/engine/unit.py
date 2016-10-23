@@ -31,6 +31,21 @@ class UnitBase(IDComparable):
     def mobile(self):
         return not isinstance(self, Building)
 
+    def to_dict(self, as_target=False):
+        if as_target:
+            return dict(
+                id=self.id, posx=self.x, posy=self.y, type=self.__class__.__name__,
+            )
+        data = dict(
+            id=self.id, posx=self.x, posy=self.y, type=self.__class__.__name__,
+            target=self.target.to_dict(as_target=True) if self.target else None,
+            health=self.health, vision=self.vision, hit=self.hit, attack=self.attack,
+            action_points=self.action_points, player=self.player.id,
+        )
+        if hasattr(self, 'path'):
+            data['path'] = [dict(posx=tile.x, posy=tile.y) for tile in self.path]
+        return data
+
     def positions_within_range(self, reach):
         positions = set()
         x, y = self.x, self.y
