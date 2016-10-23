@@ -28,7 +28,7 @@ class Map(object):
         # self.building_y_markers = numpy.multiply(y_step, [0, 2, 4])
         self.building_y_markers = [y_step * i for i in [0, 2, 4]]
         # self.map = numpy.ndarray((self.size_y, self.size_x), dtype=GameTile)
-        self.map = [[None for x in range(36)] for y in range(21)]
+        self.map = [[None for x in range(self.size_x)] for y in range(self.size_y)]
 
         for y in range(self.size_y):
             for x in range(self.size_x):
@@ -41,6 +41,7 @@ class Map(object):
     def init_buildings(self, p0, p1):
         assert isinstance(p0, Player)
         assert isinstance(p1, Player)
+        self.fort_positions, self.tower_positions = [], []
         positions = []
         for x in self.building_x_markers:
             for y in self.building_y_markers:
@@ -50,8 +51,10 @@ class Map(object):
             player = p0 if self.is_position_player_side(x, y, p0) else p1
             if x == 0 or x == self.size_x - 1:
                 self.map[y][x].add_unit(Fort(player))
+                self.fort_positions.append((x, y))
             else:
                 self.map[y][x].add_unit(Tower(player))
+                self.tower_positions.append((x, y))
 
     def vision_by_player(self, player):
         in_vision_positions = set()
@@ -122,6 +125,15 @@ class Map(object):
             if isinstance(tile, GameTile):
                 units.extend(tile.occupants)
         return units
+
+    def get_forts(self, player=None):
+        all_forts = []
+        for x, y in self.fort_positions:
+            all_forts.extend([unit for unit in self.map[y][x].occupants if isinstance(unit, Fort)])
+        assert len(all_forts) <= 6  # sanity-check
+        if player is not None:
+            return [fort for fort in all_forts if fort.player == player]
+        return all_forts
 
     def as_string(self):
         '''ascii is not dead'''

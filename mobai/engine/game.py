@@ -29,6 +29,7 @@ class GameState(object):
         self.player0, self.player1 = Player(0), Player(1)
         self.map = self.init_map()
         self.turn_count = 1
+        self.spawn_interval = 10
 
     def init_map(self):
         assert not hasattr(self, 'map') or self.map is None
@@ -40,11 +41,25 @@ class GameState(object):
     def orders_from_player(self, orders):
         raise NotImplementedError
 
+    def spawn_new_units(self):
+        for fort in self.map.get_forts():
+            fort.spawn_soldiers(count=3)
+
+    def remove_dead_units(self):
+        # TODO: might use for feedback
+        dead_units = []
+        for tile in self.map.tiles():
+            dead_units.extend([unit for unit in tile.occupants if unit.health <= 0])
+            tile.occupants = [unit for unit in tile.occupants if unit.health > 0]
+        for unit in self.map.get_all_units():
+            if unit.target in dead_units:
+                unit.clear_target()
+
     def evaluate_turn(self):
         '''execute planned actions for one turn'''
-        # NOTE: chase 2nd would allow multi-action to attack & move in single pass
         for step in ('attack', 'move', 'chase'):
             # NOTE: execution order by-tile, all actions need to be synced, otherwise can be unfair
             for unit in self.map.get_all_units():
                 unit.end_of_turn(step)
+        self.remove_dead_units()
         self.turn_count += 1

@@ -100,6 +100,9 @@ class UnitBase(IDComparable):
         else:
             self._set_attack_target(target)
 
+    def clear_target(self):
+        self.target = None
+
     def attack(self):
         '''attack current target, decrease action points and target health'''
         #  sanity checks with target
@@ -183,6 +186,9 @@ class Fort(Tower):
         self.vision = 3
         self.attack = 5
 
+    def spawn_soldiers(self, count=0):
+        for _ in range(count):
+            self._tile.add_unit(Soldier(self.player))
 
 class Soldier(UnitBase):
     def __init__(self, *args):
