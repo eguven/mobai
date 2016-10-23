@@ -16,10 +16,9 @@ Player units can target enemy units if that enemy unit is within player vision. 
 1. the unit will attack its target if it can (further rules apply)
 2. chase until 1 is true
 
-If at any given turn the player loses vision of an enemy unit, _any player units
-currently chasing that unit will have their **target reset**_. They will however retain
-their paths and continue along that route moving to the last known position of their
-targets.
+If at any given turn the player loses vision of an enemy unit, _all player units
+currently chasing that enemy unit will have their **target reset**_. They will however retain
+their paths and continue along that route moving to the last known position of their targets.
 
 #### Mobile vs Immobile Units
 
@@ -45,7 +44,7 @@ from the game map.
 
 ### Unit Generation
 
-Every X (TBD) turns, Y (TBD) units will spawn into the game map at player Fort positions.
+Every X (TBD) turns, Y (TBD) units will spawn into the game map at player Forts (might change).
 
 ### Turn Resolution
 
@@ -58,5 +57,6 @@ Every turn has the following steps
     * Attack resolution: Unit that can hit their targets will do so
     * Move resolution: Units that are mobile and have a path they can move to will do so
     * Chase resolution: Units that have their target still in vision will re-path to their target
-* Dead units are remove from game map
+* Dead units are removed from game map
+* Units with dead targets have their targets reset
 * Turn ends

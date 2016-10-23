@@ -18,7 +18,7 @@ A mobile, soldier type unit.
         'posx': 0,
         'posy': 0,
         'type': 'Soldier',
-        'target': {'type': 'Fort', 'posx': 35, 'posy': 20},
+        'target': {'id': '4ffbd1e8-19e5-45c3-abf7-9330877df3ee', 'type': 'Fort', 'posx': 35, 'posy': 20},
         'path': [{'posx': 0, 'posy': 1}, {'posx': 0, 'posy': 2}, ...],
         'health': 10,
         'vision': 2,
@@ -29,6 +29,8 @@ A mobile, soldier type unit.
     }
     
     # target.type: 'Soldier' | 'Tower' | 'Fort' | 'GameTile'
+
+Targets of type ``GameTile`` have no ID.
 
 ## Tower / Fort
 
@@ -148,8 +150,4 @@ This is the object each player receives at the beginning of the turn.
         'player_id': 0,                    # id of current player, 0-1
         'turn': 1,                         # current turn 0-
         'map': Map[21][36],                # game map as defined above
-        'player_buildings': [{...}, ...],  # list of player building type units for convenience
-        'player_soldiers': [{...}, ...],   # list of player soldier type units for convenience
-        'enemy_buildings': [{...}, ...],   # list of enemy building type units for convenience (in vision)
-        'enemy_soldiers': [{...}, ...],    # list of enemy soldier type units for convenience (in vision)
     }
