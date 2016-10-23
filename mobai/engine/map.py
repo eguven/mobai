@@ -1,5 +1,3 @@
-import numpy
-
 from .base import Player
 from .tile import GameTile
 from .unit import Fort, Tower
@@ -24,10 +22,14 @@ class Map(object):
         # self.building_y_markers = ((self.size_y - 1) / self.x_y_ratio[1]) * [0, 2, 4]
         x_step = int((self.size_x - 1) / self.x_y_ratio[0])
         y_step = int((self.size_y - 1) / self.x_y_ratio[1])
-        self.building_x_markers = numpy.multiply(x_step, [0, 2, 5, 7])
-        self.building_y_markers = numpy.multiply(y_step, [0, 2, 4])
 
-        self.map = numpy.ndarray((self.size_y, self.size_x), dtype=GameTile)
+        # self.building_x_markers = numpy.multiply(x_step, [0, 2, 5, 7])
+        self.building_x_markers = [x_step * i for i in [0, 2, 5, 7]]
+        # self.building_y_markers = numpy.multiply(y_step, [0, 2, 4])
+        self.building_y_markers = [y_step * i for i in [0, 2, 4]]
+        # self.map = numpy.ndarray((self.size_y, self.size_x), dtype=GameTile)
+        self.map = [[None for x in range(36)] for y in range(21)]
+
         for y in range(self.size_y):
             for x in range(self.size_x):
                 if self.is_valid_position(x, y):

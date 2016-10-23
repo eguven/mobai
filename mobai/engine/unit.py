@@ -1,7 +1,8 @@
 import uuid
 
 from .base import IDComparable
-from .tile import GameTile
+
+# TODO: All vision calculations use unit vision, switch to player vision
 
 
 class UnitBase(IDComparable):
@@ -67,6 +68,7 @@ class UnitBase(IDComparable):
 
     def is_in_vision(self, target):
         '''is the target (UnitBase/GameTile) visible'''
+        from .tile import GameTile
         assert isinstance(target, (UnitBase, GameTile))
         pos = (target.x, target.y)
         return pos in self.visible_positions()
@@ -86,6 +88,7 @@ class UnitBase(IDComparable):
     def can_move_to(self, target):
         '''can the unit move to target (tuple/GameTile)'''
         # NOTE: needs change if we have units that can move >1 in a turn
+        from .tile import GameTile
         assert isinstance(target, (tuple, GameTile))
         if not self.mobile:
             return False
@@ -99,6 +102,7 @@ class UnitBase(IDComparable):
         self.target = target
 
     def set_target(self, target):
+        from .tile import GameTile
         if isinstance(target, GameTile):
             assert self.mobile
             self._set_move_target(target)
