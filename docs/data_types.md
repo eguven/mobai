@@ -36,9 +36,9 @@ An immobile, building type unit.
 
 Building type units **will not have a path and can not target ``GameTiles``
 (eg. position)**. Such action requests will result in no action taken for the respective
-turn.
+turn. See Rules and Concepts document for further information.
 
-Apart from this exception, their data is identical to that of a ``Soldier``. ``Forts``
+Apart from this exception, their data is identical to that of a ``Soldier``, and ``Forts``
 are simply stronger towers.
 
 ## GameTile
@@ -68,11 +68,12 @@ moved to.
         ]
     }
 
-A player will only see occupants if the ``GameTile`` is **within vision**.
+A player will only see occupants **if the ``GameTile`` is within vision**. See
+Rules and Concepts document for further information.
 
 ## Map
 
-    MAP 36x21 (size)
+    A Simple representation, 36x21
     
      F--10--T--15--T--10--F
      |      |      |      |
@@ -89,9 +90,11 @@ A player will only see occupants if the ``GameTile`` is **within vision**.
      Paths are horizontal and vertical, empty space (most of the map) is null tiles.
 
 
-A 2D array representing game tiles. A null object in the map represents the lack of tile eg. no path.
-Position ``{'posx': 0, 'posy': 0}`` represents to **top-left** corner of the map. The dimensions of
-the map currently is ``(36, 21)``.
+A 2D array representing game tiles.
+
+* A null object in the map represents the lack of tile eg. no path.
+* Position ``{'posx': 0, 'posy': 0}`` represents to **top-left** corner of the map.
+* The dimensions of the map currently is ``(36, 21)``.
 
 Note that map indices are reversed, eg. a ``GameTile`` with position ``(x, y)`` is ``map[y][x]``.
 
