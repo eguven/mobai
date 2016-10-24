@@ -34,14 +34,10 @@ Targets of type ``GameTile`` have no ID.
 
 ## Tower / Fort
 
-An immobile, building type unit.
+An immobile, building type unit. Has no `path` attribute. See Rules and Concepts document
+for further details.
 
-Building type units **will not have a path and can not target ``GameTiles``
-(eg. position)**. Such action requests will result in no action taken for the respective
-turn. See Rules and Concepts document for further information.
-
-Apart from this exception, their data is identical to that of a ``Soldier``, and ``Forts``
-are simply stronger towers.
+Forts are simply stronger towers and they spawn units (might change).
 
 ## GameTile
 

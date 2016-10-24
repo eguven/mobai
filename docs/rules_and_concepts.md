@@ -1,5 +1,16 @@
 # Mobai Rules and Concepts
 
+### Building Type Units
+
+Forts and Towers.
+
+These units are immobile, have no path, and can not target ``GameTiles``. Also see
+'AutoTargeting' section.
+
+### Mobile Units
+
+Soldiers.
+
 ### Unit Vision
 
 Every unit has a `vision` property denoting how many tiles far it can see.
@@ -24,6 +35,15 @@ their paths and continue along that route moving to the last known position of t
 
 Mobile units can target game tiles which sets their path to that tile whereas
 immobile units can only target units.
+
+### Clear Target and Clear Path
+
+Clearing target means resetting `attack when you can` (chase) order. Mobile units will
+retain their paths and contiue moving.
+
+Clearing path means resetting the path. This also implies resetting a target due to
+targeting mechanics (unit will chase its target). This action has no meaning for
+immobile units.
 
 ### Attacking
 

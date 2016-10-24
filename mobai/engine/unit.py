@@ -235,3 +235,8 @@ class Soldier(UnitBase):
     def _set_attack_target(self, target):
         super(self, Soldier)._set_attack_target(target)  # would raise if not if vision
         self._set_move_target(target)
+
+    def clear_path(self):
+        '''also implies clear_target'''
+        self.path = []
+        self.clear_target()
