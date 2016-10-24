@@ -125,19 +125,22 @@ class Map(object):
             return [self.get_tile(*pos) for pos in path]
         return a_star_search(self, start, end)
 
-    def get_all_units(self):
+    def get_all_units(self, by_player=None):
         units = []
         for tile in self.tiles:
-            units.extend(tile.occupants)
+            if by_player is not None:
+                units.extend([unit for unit in tile.occupants if unit.player == by_player])
+            else:
+                units.extend(tile.occupants)
         return units
 
-    def get_forts(self, player=None):
+    def get_forts(self, by_player=None):
         all_forts = []
         for x, y in self.fort_positions:
             all_forts.extend([unit for unit in self.map[y][x].occupants if isinstance(unit, Fort)])
         assert len(all_forts) <= 6  # sanity-check
-        if player is not None:
-            return [fort for fort in all_forts if fort.player == player]
+        if by_player is not None:
+            return [fort for fort in all_forts if fort.player == by_player]
         return all_forts
 
     def to_array(self, by_player=None):
