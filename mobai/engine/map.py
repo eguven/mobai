@@ -85,6 +85,10 @@ class Map(object):
             tiles.append(self.map[y][x])
         return tiles
 
+    def player_has_vision(self, player, target):
+        pos = target if isinstance(target, tuple) else (target.x, target.y)
+        return pos in self.vision_by_player(player)
+
     def is_valid_position(self, x, y):
         '''is position within boundaries and does it share an X or Y with any
         building, which suggests a lane

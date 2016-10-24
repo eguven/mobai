@@ -31,6 +31,10 @@ class UnitBase(IDComparable):
     def mobile(self):
         return not isinstance(self, Building)
 
+    @property
+    def _map(self):
+        return self._tile._map
+
     def to_dict(self, as_target=False):
         if as_target:
             return dict(
@@ -104,7 +108,7 @@ class UnitBase(IDComparable):
             return target in self._tile.neighbor_positions()
 
     def _set_attack_target(self, target):
-        assert self.player.has_vision(target)
+        assert self._map.player_has_vision(self.player, target)
         self.target = target
 
     def set_target(self, target):
@@ -156,7 +160,7 @@ class UnitBase(IDComparable):
         '''chase as in re-path to target, does not move, does not require action points'''
         if not isinstance(self.target, UnitBase):
             return
-        elif self.player.has_vision(self.target) and self.mobile:
+        elif self._map.player_has_vision(self.player, self.target) and self.mobile:
             self.set_target(self.target)  # re-path
         else:
             # either I'mma building, or I lost the guy #foreveralone
@@ -204,6 +208,7 @@ class Fort(Tower):
     def spawn_soldiers(self, count=0):
         for _ in range(count):
             self._tile.add_unit(Soldier(self.player))
+
 
 class Soldier(UnitBase):
     def __init__(self, *args):
