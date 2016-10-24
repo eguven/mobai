@@ -136,11 +136,13 @@ class Map(object):
             return [fort for fort in all_forts if fort.player == player]
         return all_forts
 
-    def to_array(self):
+    def to_array(self, by_player=None):
         data = [[None for x in range(self.size_x)] for y in range(self.size_y)]
+        if by_player is not None:
+            player_vision = self.vision_by_player(by_player)
         for y in range(self.size_y):
             for x in range(self.size_x):
-                if self.map[y][x] is None:
+                if self.map[y][x] is None or (by_player is not None and (x, y) not in player_vision):
                     data[y][x] = None
                 else:
                     data[y][x] = self.map[y][x].to_dict()
