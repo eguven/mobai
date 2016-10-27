@@ -2,7 +2,6 @@ import enum
 
 from .base import Player
 from .map import Map
-from .tile import GameTile
 
 
 class ActionType(enum.Enum):
@@ -42,12 +41,12 @@ class Command(object):
 
     def verify_target(self, units, map):
         '''make sure target is valid'''
-        if isinstance(command.target, str):  # targeting a unit
-            assert command.target in units and units[command.target].player != self.player:
-            target = units[command.target]
-        elif isinstance(command.target, dict):  # targeting a tile (position)
+        if isinstance(self.target, str):  # targeting a unit
+            assert self.target in units and units[self.target].player != self.player
+            target = units[self.target]
+        elif isinstance(self.target, dict):  # targeting a tile (position)
             assert self.unit.mobile
-            target = map.get_tile(command.target['posx'], command.target['posy'])
+            target = map.get_tile(self.target['posx'], self.target['posy'])
         assert map.player_has_vision(target)
         self.target = target
 
@@ -99,7 +98,7 @@ class GameState(object):
         unit_lookup = {unit.id: unit for unit in self.map.get_all_units()}
         actions = []
         errors = []  # TODO maybe feedback, maybe clear error definitions
-        commands = commands[-1 * len(units):]
+        commands = commands[-1 * len(unit_lookup):]
         for command in commands:
             try:
                 cmd = Command(player, command)
