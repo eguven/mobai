@@ -131,7 +131,7 @@ class GameState(object):
 
     def evaluate_turn(self):
         '''execute planned actions for one turn'''
-        for step in ('attack', 'move', 'chase'):
+        for step in ('attack', 'move', 'chase', 'finish'):
             # NOTE: execution order by-tile, all actions need to be synced, otherwise can be unfair
             for unit in self.map.get_all_units():
                 unit.end_of_turn(step)

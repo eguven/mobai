@@ -171,6 +171,14 @@ class UnitBase(IDComparable):
             # either I'mma building, or I lost the guy #foreveralone
             self.clear_target()
 
+    def _turn_finish_step(self):
+        '''currently only clearing target if it's a `GameTile` and unit is there'''
+        from .tile import GameTile
+        if self.mobile and not self.path and isinstance(self.target, GameTile):
+            # sanity-check
+            assert self._tile == self.target
+            self.clear_target()
+
     def end_of_turn(self, step):
         if step == 'attack':
             self._turn_attack_step()
@@ -178,6 +186,8 @@ class UnitBase(IDComparable):
             self._turn_move_step()
         elif step == 'chase':
             self._turn_chase_step()
+        elif step == 'finish':
+            self._turn_finish_step()
         else:
             raise AssertionError('Uhm?')
 
