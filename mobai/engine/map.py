@@ -1,6 +1,6 @@
 from .base import Player
 from .tile import GameTile
-from .unit import Fort, Tower
+from .unit import Fort, Tower, Soldier
 from .util import a_star_search
 
 
@@ -170,6 +170,8 @@ class Map(object):
                     chars.append('F')
                 elif [u for u in occupants if isinstance(u, Tower)]:
                     chars.append('T')
+                elif [u for u in occupants if isinstance(u, Soldier)]:
+                    chars.append('S')
                 else:
                     chars.append('·')
             chars.append('\n')

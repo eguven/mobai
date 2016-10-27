@@ -137,3 +137,22 @@ class GameState(object):
                 unit.end_of_turn(step)
         self._remove_dead_units()
         self.turn += 1
+
+    def ascii(self, pid=None):
+        tmp_map = Map()
+        if pid is not None:
+            assert pid in (0, 1)
+            player = self.player0 if pid == 0 else self.player1
+            positions = self.map.vision_by_player(player)
+        else:
+            positions = None
+        for y in range(self.map.size_y):
+            for x in range(self.map.size_x):
+                if not self.map.is_valid_position(x, y):
+                    continue
+                if positions is None or (x, y) in positions:
+                    tmp_map.map[y][x] = self.map.get_tile(x, y)
+                else:
+                    tmp_map.map[y][x] = None
+
+        return tmp_map.as_string()
