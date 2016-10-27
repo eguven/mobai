@@ -14,15 +14,21 @@ class GameTile(object):
     # def __hash__(self):
     #     return hash((self.x, self.y))
 
+    def __eq__(self, other):
+        return (self.x, self.y) == (other.x, other.y)
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __str__(self):
+        return 'GameTile(%dx%d)' % (self.x, self.y)
+
     def to_dict(self, as_target=False):
         if as_target:
             return dict(posx=self.x, posy=self.y, type=self.__class__.__name__)
         return dict(
             posx=self.x, posy=self.y, occupants=[unit.to_dict() for unit in self.occupants],
         )
-
-    def __str__(self):
-        return 'GameTile(%dx%d)' % (self.x, self.y)
 
     def add_unit(self, unit):
         assert unit not in self.occupants
