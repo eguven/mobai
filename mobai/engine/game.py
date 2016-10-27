@@ -73,7 +73,7 @@ class GameState(object):
     '''
     def __init__(self):
         self.player0, self.player1 = Player(0), Player(1)
-        self.map = self.init_map()
+        self.init_map()
         self.turn = 0
         self.spawn_interval = 10
 
@@ -82,8 +82,10 @@ class GameState(object):
         self.map = Map(p0=self.player0, p1=self.player1)
 
     def begin_turn(self):
-        if self.turn % self.spawn_interval:
+        if self.turn % self.spawn_interval == 0:
             self._spawn_new_units()
+        for unit in self.map.get_all_units():
+            unit.action_points = 1
 
     def state_for_player(self, player):
         return dict(

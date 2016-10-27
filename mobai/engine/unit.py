@@ -109,6 +109,7 @@ class UnitBase(IDComparable):
 
     def _set_attack_target(self, target):
         assert self._map.player_has_vision(self.player, target)
+        assert self.player != target.player
         self.target = target
 
     def set_target(self, target):
@@ -151,7 +152,7 @@ class UnitBase(IDComparable):
             return
         # mobile, have path, can move, have action points
         elif self.path and self.can_move_to(self.path[0]) and self.can_act():
-            self.move()
+            self.move(self.path[0])
             return
         # sanity-check
         elif self.path and not self.can_move_to(self.path[0]):
@@ -168,7 +169,7 @@ class UnitBase(IDComparable):
             self.set_target(self.target)  # re-path
         else:
             # either I'mma building, or I lost the guy #foreveralone
-            self.target = None
+            self.clear_target()
 
     def end_of_turn(self, step):
         if step == 'attack':
@@ -243,7 +244,7 @@ class Soldier(UnitBase):
 
     def _set_attack_target(self, target):
         super(Soldier, self)._set_attack_target(target)  # would raise if not if vision
-        self._set_move_target(target)
+        self._set_move_target(target._tile)
 
     def stop(self):
         super(Soldier, self).stop()

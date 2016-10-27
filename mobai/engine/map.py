@@ -127,7 +127,7 @@ class Map(object):
 
     def get_all_units(self, by_player=None):
         units = []
-        for tile in self.tiles:
+        for tile in self.tiles():
             if by_player is not None:
                 units.extend([unit for unit in tile.occupants if unit.player == by_player])
             else:
