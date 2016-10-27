@@ -122,6 +122,10 @@ class UnitBase(IDComparable):
     def clear_target(self):
         self.target = None
 
+    def stop(self):
+        '''stop whatever you're doing'''
+        self.clear_target()
+
     def attack(self):
         '''attack current target, decrease action points and target health'''
         #  sanity checks with target
@@ -238,10 +242,9 @@ class Soldier(UnitBase):
         self.target = target
 
     def _set_attack_target(self, target):
-        super(self, Soldier)._set_attack_target(target)  # would raise if not if vision
+        super(Soldier, self)._set_attack_target(target)  # would raise if not if vision
         self._set_move_target(target)
 
-    def clear_path(self):
-        '''also implies clear_target'''
+    def stop(self):
+        super(Soldier, self).stop()
         self.path = []
-        self.clear_target()
