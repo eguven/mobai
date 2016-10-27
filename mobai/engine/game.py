@@ -76,6 +76,14 @@ class GameState(object):
         self.init_map()
         self.turn = 0
         self.spawn_interval = 10
+        self._all_units = None
+
+    @property
+    def all_units(self):
+        '''resetted at the end of turn and regenerated at first access of every turn'''
+        if self._all_units is None:
+            self._all_units = self.map.get_all_units()
+        return self._all_units
 
     def init_map(self):
         assert not hasattr(self, 'map') or self.map is None
@@ -84,7 +92,7 @@ class GameState(object):
     def begin_turn(self):
         if self.turn % self.spawn_interval == 0:
             self._spawn_new_units()
-        for unit in self.map.get_all_units():
+        for unit in self.all_units:
             unit.action_points = 1
 
     def state_for_player(self, player):
@@ -97,7 +105,7 @@ class GameState(object):
         '''actions are limited to total unit count, extras will be trimmed
         from the beginning
         '''
-        unit_lookup = {unit.id: unit for unit in self.map.get_all_units()}
+        unit_lookup = {unit.id: unit for unit in self.all_units}
         actions = []
         errors = []  # TODO maybe feedback, maybe clear error definitions
         commands = commands[-1 * len(unit_lookup):]
@@ -125,7 +133,7 @@ class GameState(object):
         for tile in self.map.tiles():
             dead_units.extend([unit for unit in tile.occupants if unit.health <= 0])
             tile.occupants = [unit for unit in tile.occupants if unit.health > 0]
-        for unit in self.map.get_all_units():
+        for unit in self.all_units:
             if unit.target in dead_units:
                 unit.clear_target()
 
@@ -133,9 +141,10 @@ class GameState(object):
         '''execute planned actions for one turn'''
         for step in ('attack', 'move', 'chase', 'finish'):
             # NOTE: execution order by-tile, all actions need to be synced, otherwise can be unfair
-            for unit in self.map.get_all_units():
+            for unit in self.all_units:
                 unit.end_of_turn(step)
         self._remove_dead_units()
+        self._all_units = None
         self.turn += 1
 
     def ascii(self, pid=None):

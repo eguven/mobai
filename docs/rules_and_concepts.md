@@ -34,7 +34,7 @@ their paths and continue along that route moving to the last known position of t
 #### Mobile vs Immobile Units
 
 Mobile units can target game tiles which sets their path to that tile whereas
-immobile units can only target units.
+immobile units can only target units. Reached game tile targets are cleared automatically.
 
 ### Clear Target
 
