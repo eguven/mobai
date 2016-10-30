@@ -85,11 +85,32 @@ class GameState(object):
             self._all_units = self.map.get_all_units()
         return self._all_units
 
+    @property
+    def finished(self):
+        p0, p1 = 0, 0  # unit counts
+        for unit in self.all_units:
+            if p0 and p1:
+                return False
+            if unit.player == self.player0:
+                p0 += 1
+            else:
+                p1 += 1
+        return True
+
+    @property
+    def winner(self):
+        if not self.finished:
+            return None
+        if not self.all_units:
+            return False
+        return self.all_units[0].player
+
     def init_map(self):
         assert not hasattr(self, 'map') or self.map is None
         self.map = Map(p0=self.player0, p1=self.player1)
 
     def begin_turn(self):
+        assert not self.finished
         if self.turn % self.spawn_interval == 0:
             self._spawn_new_units()
         for unit in self.all_units:

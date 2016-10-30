@@ -69,10 +69,15 @@ from the game map.
 
 Every X (TBD) turns, Y (TBD) units will spawn into the game map at player Forts (might change).
 
+### Game End
+
+Player loses when it runs out of units.
+
 ### Turn Resolution
 
 Every turn has the following steps
 
+* Turn begin, resetting action points, spawning new units
 * Players receive game state
 * Players send actions
 * Actions are verified, illegal actions are dropped
