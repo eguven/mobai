@@ -13,3 +13,6 @@ class IDComparable(object):
 class Player(IDComparable):
     def __init__(self, id):
         self.id = id
+
+    def __repr__(self):
+        return 'Player(id=%d)' % self.id

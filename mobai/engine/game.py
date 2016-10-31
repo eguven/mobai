@@ -1,4 +1,6 @@
 import enum
+import gzip
+import pickle
 
 from .base import Player
 from .map import Map
@@ -78,6 +80,14 @@ class GameState(object):
         self.spawn_interval = 10
         self._all_units = None
 
+    @staticmethod
+    def serialize(gamestate):
+        return gzip.compress(pickle.dumps(gamestate), compresslevel=1)
+
+    @staticmethod
+    def deserialize(serialized):
+        return pickle.loads(gzip.decompress(serialized))
+
     @property
     def all_units(self):
         '''resetted at the end of turn and regenerated at first access of every turn'''
@@ -110,9 +120,9 @@ class GameState(object):
         self.map = Map(p0=self.player0, p1=self.player1)
 
     def begin_turn(self):
-        assert not self.finished
         if self.turn % self.spawn_interval == 0:
             self._spawn_new_units()
+        assert not self.finished, 'Game is finished'
         for unit in self.all_units:
             unit.action_points = 1
 
