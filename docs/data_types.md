@@ -138,6 +138,31 @@ Note that map indices are reversed, eg. a ``GameTile`` with position ``(x, y)`` 
         ]
     ]
 
+## Command
+
+A command for a unit. Players post a list of them each turn. Each command must contain
+an id (uuid) of the unit the command is intended for as well as an action. Actions can be
+one of `['target', 'clear_target', 'stop']`. A target is required for `'action': 'target'`
+and it can be either another (enemy) unit id or a position.
+
+    # stop
+    {
+        'id': '4ffbd1e8-19e5-45c3-abf7-9330877df3ee',
+        'action': 'stop',
+    }
+    # target a unit
+    {
+        'id': '4ffbd1e8-19e5-45c3-abf7-9330877df3ee',
+        'action': 'target',
+        'target': '4ffbd1e8-19e5-45c3-abf7-ffffffffffff',
+    }
+    # target a tile
+    {
+        'id': '4ffbd1e8-19e5-45c3-abf7-9330877df3ee',
+        'action': 'target',
+        'target': {'posx': 10, 'posy': 0},
+    }
+
 ## GameState
 
 This is the object each player receives at the beginning of the turn.
