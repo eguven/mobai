@@ -12,6 +12,15 @@ setup(
     author_email='erenguven0@gmail.com',
     license='MIT',
     packages=find_packages(),
+    install_requires=[
+        'Click',
+        'pymongo',
+    ],
+    entry_points={
+        'console_scripts': [
+            'run_game = mobai.runner.runner:run_game',
+        ]
+    },
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
