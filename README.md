@@ -19,6 +19,8 @@ AI playground and bot training.
     * Map: 8-directional movement
     * Units: More types of units
     * Game: Some game progress mechanism (like gold/xp in MOBA games) and a way to make use of it
+* other
+    * versioned serialization
 
 
 https://github.com/eguven/mobai

@@ -75,6 +75,7 @@ class GameState(object):
     '''
     def __init__(self):
         self.player0, self.player1 = Player(0), Player(1)
+        self.players = {0: self.player0, 1: self.player1}
         self.init_map()
         self.turn = 0
         self.spawn_interval = 10

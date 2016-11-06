@@ -5,7 +5,8 @@ from . import gamequeue
 from . import handlers
 
 routes = [
-    (r'/api/queue', handlers.QueueHandler)
+    (r'/api/queue', handlers.QueueHandler),
+    (r'/api/games/([0-9a-f]*)', handlers.GameHandler),
 ]
 
 if __name__ == '__main__':
