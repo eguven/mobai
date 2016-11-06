@@ -89,15 +89,13 @@ class QueueHandler(BaseHandler):
 
 
 class GameHandler(BaseHandler):
-    @gen.coroutine
-    def get(self, game_id):
-        try:  # required query parameters
-            username = self.get_query_argument('username')
-            token = self.get_query_argument('token')
-        except tornado.web.MissingArgumentError as e:
-            self.set_status_and_write(400, {'error': 'missing argument \'%s\'' % e.arg_name})
-            return
 
+    @gen.coroutine
+    def _set_game_and_player_designation(self, game_id, username, token):
+        '''Make sure game exists and the provided username-token combination
+        has rights to it. Set game and player_id and return True if yes, return
+        None otherwise.
+        '''
         try:  # correct game id and game existence
             game = yield games.find_one({'_id': ObjectId(game_id)})
         except InvalidId:
@@ -116,7 +114,29 @@ class GameHandler(BaseHandler):
             self.set_status_and_write(401, {'error': 'unauthorized (username or token mismatch)'})
             return
 
-        gs = GameState.deserialize(game['state'])
-        map_for_player = gs.map.to_array(by_player=gs.players[player_id])
-        data = {'player_id': player_id, 'turn': gs.turn, 'map': map_for_player, 'status': game['status']}
+        self.game, self.player_id = game, player_id
+        return True
+
+    @gen.coroutine
+    def get(self, game_id):
+        try:  # required query parameters
+            username = self.get_query_argument('username')
+            token = self.get_query_argument('token')
+        except tornado.web.MissingArgumentError as e:
+            self.set_status_and_write(400, {'error': 'missing argument \'%s\'' % e.arg_name})
+            return
+
+        if not (yield self._set_game_and_player_designation(game_id, username, token)):
+            return
+
+        gs = GameState.deserialize(self.game['state'])
+        # temp
+        gs.players = {0: gs.player0, 1: gs.player1}
+        map_for_player = gs.map.to_array(by_player=gs.players[self.player_id])
+        data = dict(
+            player_id=self.player_id,
+            game_status=self.game['status'],
+            turn=self.game['turn'],
+            map=map_for_player,
+        )
         self.write(data)
