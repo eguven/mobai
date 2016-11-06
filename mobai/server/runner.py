@@ -63,7 +63,7 @@ class Runner(object):
             gs = GameState.deserialize(game['state'])
             assert game['turn'] == gs.turn
 
-            logger.info('Game "%s" loaded and running, waiting player commands', self.game_strid)
+            logger.info('Game "%s" turn "%d" loaded and running, waiting commands', self.game_strid, game['turn'])
             p0commands, p1commands = None, None
             # now we wait for commands
             wait_start = time.time()
@@ -76,13 +76,12 @@ class Runner(object):
                 if p0commands or p1commands:
                     if time.time() - wait_start > 10:
                         # TODO: stop game
-                        logger.info('Commands received\nP0commands: %s\nP1commands: %s\n',
-                                    p0commands, p1commands)
                         pass
+            logger.info('Game "%s" turn "%d" applying commands', self.game_strid, game['turn'])
             p0_commands_result = gs.commands_from_player(gs.player0, p0commands)
             p1_commands_result = gs.commands_from_player(gs.player1, p1commands)
             # TODO persist errors (command results)
-            logger.info('Commands applied\nP0: %s\nP1: %s', p0_commands_result, p1_commands_result)
+            logger.info('Game "%s" turn "%d" advancing turn', self.game_strid, game['turn'])
             gs.evaluate_turn()
             assert gs.turn == game['turn'] + 1
             try:

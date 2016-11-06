@@ -49,16 +49,16 @@ class Command(object):
         elif isinstance(self.target, dict):  # targeting a tile (position)
             assert self.unit.mobile
             target = map.get_tile(self.target['posx'], self.target['posy'])
-        assert map.player_has_vision(target)
+        assert map.player_has_vision(self.player, target)
         self.target = target
 
     def execute(self):
         if self.action is ActionType.target:
-            self.set_target(self.target)
+            self.unit.set_target(self.target)
         elif self.action is ActionType.clear_target:
-            self.clear_target()
+            self.unit.clear_target()
         elif self.action is ActionType.stop:
-            self.stop()
+            self.unit.stop()
         else:
             raise Exception('Uhm?')
 

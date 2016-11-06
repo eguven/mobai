@@ -20,7 +20,7 @@ class MatchMaker(object):
     '''coroutine based mongodb backed matchmaker to be run within tornado'''
     @gen.coroutine
     def match_game(self):
-        logger.info('Matchmaker starting')
+        logger.info('Matchmaker started')
         while True:
             wait = gen.sleep(5)
             starttime = ioloop.IOLoop.current().time()
