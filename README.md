@@ -8,12 +8,13 @@ AI playground and bot training.
 ### Status
 
 * engine: alpha
-* runner: pre-alpha
-* server: planning
+* runner: alpha
+* server: pre-alpha
 
 ### Roadmap
 
 * complete game server that can queue players, create and run games
+* improve documentation
 * engine improvements
     * Map: complex, perhaps procedurally generated maps
     * Map: 8-directional movement

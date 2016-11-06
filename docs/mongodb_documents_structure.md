@@ -30,10 +30,12 @@
 
 ### Commands
 
+Note: If filtering by game_player_id_turn becomes heavy, we move to concatenated _id
+
     {
         '_id': ObjectId,
         'game': ObjectId,
-        'player': ObjectId,
+        'player_id': int,
         'turn': int,
         'commands': list,
     }

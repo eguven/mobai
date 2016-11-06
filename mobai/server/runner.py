@@ -27,10 +27,8 @@ class Runner(object):
     def __init__(self, game_id):
         self.game_strid = game_id
         self.game_oid = ObjectId(self.game_strid)
-        players = games.find_one(self.game_oid, {'player0': 1, 'player1': 1, '_id': 0})
-        if players is None:
-            raise TypeError('Game "%s" doesn\'t exist or has incorrect data' % self.game_strid)
-        self.player0, self.player1 = players['player0']['user'], players['player1']['user']
+        if not games.find_one(self.game_oid, {'_id': 1}):
+            raise TypeError('Game "%s" doesn\'t exist' % self.game_strid)
 
     def get_gamestate(self):
         data = games.find_one({'_id': self.game_oid}, {'state': 1, '_id': 0})
@@ -40,8 +38,8 @@ class Runner(object):
         data = GameState.serialize(gamestate)
         games.update({'_id': self.game_oid}, {'$set': {'state': data}})
 
-    def get_player_commands(self, player_oid, turn):
-        player_commands = commands.find_one({'game': self.game_oid, 'player': player_oid, 'turn': turn},
+    def get_player_commands(self, player, turn):
+        player_commands = commands.find_one({'game': self.game_oid, 'player_id': player.id, 'turn': turn},
                                             {'commands': 1, '_id': 0})
         return player_commands if player_commands is None else player_commands['commands']
 
@@ -72,9 +70,9 @@ class Runner(object):
             while p0commands is None or p1commands is None:
                 time.sleep(0.1)
                 if p0commands is None:
-                    p0commands = self.get_player_commands(self.player0, gs.turn)
+                    p0commands = self.get_player_commands(gs.player0, gs.turn)
                 if p1commands is None:
-                    p1commands = self.get_player_commands(self.player1, gs.turn)
+                    p1commands = self.get_player_commands(gs.player1, gs.turn)
                 if p0commands or p1commands:
                     if time.time() - wait_start > 10:
                         # TODO: stop game
@@ -83,6 +81,7 @@ class Runner(object):
                         pass
             p0_commands_result = gs.commands_from_player(gs.player0, p0commands)
             p1_commands_result = gs.commands_from_player(gs.player1, p1commands)
+            # TODO persist errors (command results)
             logger.info('Commands applied\nP0: %s\nP1: %s', p0_commands_result, p1_commands_result)
             gs.evaluate_turn()
             assert gs.turn == game['turn'] + 1
