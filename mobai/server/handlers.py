@@ -13,6 +13,7 @@ from mobai.engine.game import GameState
 mc = motor.motor_tornado.MotorClient(w=1)
 users = mc.mobai.users
 games = mc.mobai.games
+commands = mc.mobai.commands
 
 
 class WTFException(Exception):
@@ -140,3 +141,43 @@ class GameHandler(BaseHandler):
             map=map_for_player,
         )
         self.write(data)
+
+    @gen.coroutine
+    def post(self, game_id):
+        try:  # required query parameters
+            username = self.get_query_argument('username')
+            token = self.get_query_argument('token')
+        except tornado.web.MissingArgumentError as e:
+            self.set_status_and_write(400, {'error': 'missing argument \'%s\'' % e.arg_name})
+            return
+
+        try:
+            self._decode_json_body()
+        except json.decoder.JSONDecodeError:
+            return
+
+        if 'commands' not in self._data or not isinstance(self._data['commands'], list):
+            print(self._data['commands'])
+            self.set_status_and_write(400, {'error': 'commands property doesn\'t exist or is not a list'})
+            return
+
+        if not (yield self._set_game_and_player_designation(game_id, username, token)):
+            return
+
+        # check if there are already commands (runner waiting on other player)
+        query = {'game': self.game['_id'], 'player_id': self.player_id, 'turn': self.game['turn']}
+        turn_commands = yield commands.find_one(query, {'_id': 1})
+        if turn_commands:
+            errmsg = 'Enhance your calm, you\'ve already sent commands for this turn (%s)' % self.game['turn']
+            self.set_status_and_write(400, {'error': errmsg})
+            return
+
+        doc = dict(
+            game=self.game['_id'],
+            turn=self.game['turn'],
+            player_id=self.player_id,
+            commands=self._data['commands'],
+        )
+
+        yield commands.insert_one(doc)
+        self.write({'status': 'commands saved'})

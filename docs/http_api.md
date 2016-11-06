@@ -7,6 +7,23 @@ if it doesn't already exist when someone queues with it.
 
 **POST /api/queue**
 
-Required fields are: `username`, `bot`
+Required JSON body fields: `username`, `bot`
 
-{"username": "<username>", "bot": "<bot>"}
+    {"username": "<username>", "bot": "<bot>"}
+
+### Getting state for game
+
+**GET /api/games/\<gameid\>**
+
+Required query arguments: `username`, `token`
+
+### Posting commands for a game turn
+
+**POST /api/games/\<gameid\>**
+
+Required query arguments: `username`, `token`
+Required fields: `commands`
+
+    {"commands": [{...}]}
+
+    # command structure is described in "Mobai JSON Data and Structure" document
