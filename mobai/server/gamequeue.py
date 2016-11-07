@@ -1,4 +1,5 @@
 import logging
+import multiprocessing
 import random
 
 import motor.motor_tornado
@@ -6,10 +7,12 @@ import motor.motor_tornado
 from tornado import gen
 from tornado import ioloop
 
+from .runner import Runner
 from .utils import create_token
 
-logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s')
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 mc = motor.motor_tornado.MotorClient(w=1)
 gamequeue = mc.mobai.queue
@@ -20,6 +23,8 @@ class MatchMaker(object):
     '''coroutine based mongodb backed matchmaker to be run within tornado'''
     @gen.coroutine
     def match_game(self):
+        multiprocessing.set_start_method('spawn')
+        # TODO restart runners for running games?
         logger.info('Matchmaker started')
         while True:
             wait = gen.sleep(5)
@@ -31,8 +36,13 @@ class MatchMaker(object):
                 p0['token'], p1['token'] = create_token(), create_token()
                 queue_ids = [p0.pop('_id'), p1.pop('_id')]
                 game = {'player0': p0, 'player1': p1, 'turn': 0, 'status': 'new'}
-                yield games.insert_one(game)
-                # TODO start game runner
+                insert_result = yield games.insert_one(game)
+                game_idstr = str(insert_result.inserted_id)
+                runner_name = 'runner-%s' % game_idstr
+                logger.info('Launching Process "%s"', runner_name)
+                p = multiprocessing.Process(target=Runner.start_game, args=(game_idstr,), name=runner_name, daemon=True)
+                p.start()
+                # TODO keep track of spawned runner processes
                 yield gamequeue.delete_many({'_id': {'$in': queue_ids}})
             endtime = ioloop.IOLoop.current().time()
             logger.debug('MatchMaker ran for %.3fms', 1000 * (endtime - starttime))
