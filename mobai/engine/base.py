@@ -16,4 +16,4 @@ class Player(IDComparable):
         self.id = id
 
     def __repr__(self):
-        return "Player(id=%d)" % self.id
+        return f"Player(id={self.id})"

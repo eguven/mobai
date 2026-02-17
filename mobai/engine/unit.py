@@ -38,27 +38,27 @@ class UnitBase(IDComparable):
 
     def to_dict(self, as_target=False):
         if as_target:
-            return dict(
-                id=self.id,
-                posx=self.x,
-                posy=self.y,
-                type=self.__class__.__name__,
-            )
-        data = dict(
-            id=self.id,
-            posx=self.x,
-            posy=self.y,
-            type=self.__class__.__name__,
-            target=self.target.to_dict(as_target=True) if self.target else None,
-            health=self.health,
-            vision=self.vision,
-            hit=self.hit,
-            attack=self.damage,
-            action_points=self.action_points,
-            player=self.player.id,
-        )
+            return {
+                "id": self.id,
+                "posx": self.x,
+                "posy": self.y,
+                "type": self.__class__.__name__,
+            }
+        data = {
+            "id": self.id,
+            "posx": self.x,
+            "posy": self.y,
+            "type": self.__class__.__name__,
+            "target": self.target.to_dict(as_target=True) if self.target else None,
+            "health": self.health,
+            "vision": self.vision,
+            "hit": self.hit,
+            "attack": self.damage,
+            "action_points": self.action_points,
+            "player": self.player.id,
+        }
         if hasattr(self, "path"):
-            data["path"] = [dict(posx=tile.x, posy=tile.y) for tile in self.path]
+            data["path"] = [{"posx": tile.x, "posy": tile.y} for tile in self.path]
         return data
 
     def positions_within_range(self, reach):

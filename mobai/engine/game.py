@@ -130,11 +130,11 @@ class GameState:
             unit.action_points = 1
 
     def state_for_player(self, player):
-        return dict(
-            player_id=player.id,
-            turn=self.turn,
-            map=self.map.to_array(by_player=player),
-        )
+        return {
+            "player_id": player.id,
+            "turn": self.turn,
+            "map": self.map.to_array(by_player=player),
+        }
 
     def commands_from_player(self, player, commands):
         """actions are limited to total unit count, extras will be trimmed
@@ -155,7 +155,7 @@ class GameState:
                 continue
             cmd.execute()
             actions.append(command)
-        return dict(actions=actions, errors=errors)
+        return {"actions": actions, "errors": errors}
 
     def _spawn_new_units(self):
         for fort in self.map.get_forts():

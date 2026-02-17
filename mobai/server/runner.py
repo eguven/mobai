@@ -29,7 +29,7 @@ class Runner:
         self.game_strid = game_id
         self.game_oid = ObjectId(self.game_strid)
         if not games.find_one(self.game_oid, {"_id": 1}):
-            raise TypeError('Game "%s" doesn\'t exist' % self.game_strid)
+            raise TypeError(f'Game "{self.game_strid}" doesn\'t exist')
 
     def get_gamestate(self):
         data = games.find_one({"_id": self.game_oid}, {"state": 1, "_id": 0})
@@ -81,8 +81,8 @@ class Runner:
                         # TODO: stop game
                         pass
             logger.info('Game "%s" turn "%d" applying commands', self.game_strid, game["turn"])
-            p0_commands_result = gs.commands_from_player(gs.player0, p0commands)
-            p1_commands_result = gs.commands_from_player(gs.player1, p1commands)
+            _p0_commands_result = gs.commands_from_player(gs.player0, p0commands)
+            _p1_commands_result = gs.commands_from_player(gs.player1, p1commands)
             # TODO persist errors (command results)
             logger.info('Game "%s" turn "%d" advancing turn', self.game_strid, game["turn"])
             gs.evaluate_turn()

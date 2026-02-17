@@ -107,7 +107,7 @@ class Map:
         return (player.id == 0 and x < self.size_x / 2) or (player.id == 1 and x >= self.size_x / 2)
 
     def get_tile(self, x, y):
-        assert self.is_valid_position(x, y), "x=%s y=%s is not a valid position" % (x, y)
+        assert self.is_valid_position(x, y), f"x={x} y={y} is not a valid position"
         return self.map[y][x]
 
     def get_neighbors_of_tile(self, tile):
@@ -117,7 +117,7 @@ class Map:
         """Returns the list of steps on the shortest path between start and end.
         Works with GameTile or tuples, return type will match be the input type
         """
-        assert type(start) == type(end)
+        assert type(start) is type(end)
         assert isinstance(start, (tuple, GameTile))
         if isinstance(start, GameTile):
             path = a_star_search(self, (start.x, start.y), (end.x, end.y))

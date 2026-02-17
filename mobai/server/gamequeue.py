@@ -37,7 +37,7 @@ class MatchMaker:
                 game = {"player0": p0, "player1": p1, "turn": 0, "status": "new"}
                 insert_result = yield games.insert_one(game)
                 game_idstr = str(insert_result.inserted_id)
-                runner_name = "runner-%s" % game_idstr
+                runner_name = f"runner-{game_idstr}"
                 logger.info('Launching Process "%s"', runner_name)
                 p = multiprocessing.Process(target=Runner.start_game, args=(game_idstr,), name=runner_name, daemon=True)
                 p.start()

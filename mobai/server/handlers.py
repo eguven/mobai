@@ -123,7 +123,7 @@ class GameHandler(BaseHandler):
             username = self.get_query_argument("username")
             token = self.get_query_argument("token")
         except tornado.web.MissingArgumentError as e:
-            self.set_status_and_write(400, {"error": "missing argument '%s'" % e.arg_name})
+            self.set_status_and_write(400, {"error": f"missing argument '{e.arg_name}'"})
             return
 
         if not (yield self._set_game_and_player_designation(game_id, username, token)):
@@ -133,12 +133,12 @@ class GameHandler(BaseHandler):
         # temp
         gs.players = {0: gs.player0, 1: gs.player1}
         map_for_player = gs.map.to_array(by_player=gs.players[self.player_id])
-        data = dict(
-            player_id=self.player_id,
-            game_status=self.game["status"],
-            turn=self.game["turn"],
-            map=map_for_player,
-        )
+        data = {
+            "player_id": self.player_id,
+            "game_status": self.game["status"],
+            "turn": self.game["turn"],
+            "map": map_for_player,
+        }
         self.write(data)
 
     @gen.coroutine
@@ -147,7 +147,7 @@ class GameHandler(BaseHandler):
             username = self.get_query_argument("username")
             token = self.get_query_argument("token")
         except tornado.web.MissingArgumentError as e:
-            self.set_status_and_write(400, {"error": "missing argument '%s'" % e.arg_name})
+            self.set_status_and_write(400, {"error": f"missing argument '{e.arg_name}'"})
             return
 
         try:
@@ -167,16 +167,16 @@ class GameHandler(BaseHandler):
         query = {"game": self.game["_id"], "player_id": self.player_id, "turn": self.game["turn"]}
         turn_commands = yield commands.find_one(query, {"_id": 1})
         if turn_commands:
-            errmsg = "Enhance your calm, you've already sent commands for this turn (%s)" % self.game["turn"]
+            errmsg = "Enhance your calm, you've already sent commands for this turn ({})".format(self.game["turn"])
             self.set_status_and_write(400, {"error": errmsg})
             return
 
-        doc = dict(
-            game=self.game["_id"],
-            turn=self.game["turn"],
-            player_id=self.player_id,
-            commands=self._data["commands"],
-        )
+        doc = {
+            "game": self.game["_id"],
+            "turn": self.game["turn"],
+            "player_id": self.player_id,
+            "commands": self._data["commands"],
+        }
 
         yield commands.insert_one(doc)
         self.write({"status": "commands saved"})

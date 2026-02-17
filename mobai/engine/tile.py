@@ -22,16 +22,16 @@ class GameTile:
         return not self.__eq__(other)
 
     def __str__(self):
-        return "GameTile(%dx%d)" % (self.x, self.y)
+        return f"GameTile({self.x}x{self.y})"
 
     def to_dict(self, as_target=False):
         if as_target:
-            return dict(posx=self.x, posy=self.y, type=self.__class__.__name__)
-        return dict(
-            posx=self.x,
-            posy=self.y,
-            occupants=[unit.to_dict() for unit in self.occupants],
-        )
+            return {"posx": self.x, "posy": self.y, "type": self.__class__.__name__}
+        return {
+            "posx": self.x,
+            "posy": self.y,
+            "occupants": [unit.to_dict() for unit in self.occupants],
+        }
 
     def add_unit(self, unit):
         assert unit not in self.occupants
