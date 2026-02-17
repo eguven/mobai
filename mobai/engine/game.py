@@ -77,7 +77,6 @@ class GameState:
 
     def __init__(self):
         self.player0, self.player1 = Player(0), Player(1)
-        self.players = {0: self.player0, 1: self.player1}
         self.init_map()
         self.turn = 0
         self.spawn_interval = 10
@@ -90,6 +89,10 @@ class GameState:
     @staticmethod
     def deserialize(serialized):
         return pickle.loads(gzip.decompress(serialized))
+
+    @property
+    def players(self):
+        return {0: self.player0, 1: self.player1}
 
     @property
     def all_units(self):

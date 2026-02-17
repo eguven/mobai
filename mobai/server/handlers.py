@@ -130,8 +130,6 @@ class GameHandler(BaseHandler):
             return
 
         gs = GameState.deserialize(self.game["state"])
-        # temp
-        gs.players = {0: gs.player0, 1: gs.player1}
         map_for_player = gs.map.to_array(by_player=gs.players[self.player_id])
         data = {
             "player_id": self.player_id,
