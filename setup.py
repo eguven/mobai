@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='mobai',
-    version='0.1',
+    version='0.1.0.dev0',
     description='A very simple moba-inspired game engine for bots',
     long_description=open('README.md', 'r').read(),
     url='https://github.com/eguven/mobai',

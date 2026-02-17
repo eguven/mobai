@@ -1,0 +1,78 @@
+[project]
+name = "mobai"
+version = "0.1.0.dev0"
+description = "A very simple moba-inspired game engine for bots"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.14"
+authors = [
+    { name = "Eren Güven", email = "erenguven0@gmail.com" },
+]
+keywords = ["game", "engine", "bots", "ai", "moba"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Games/Entertainment",
+    "Topic :: Games/Entertainment :: Turn Based Strategy",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "click",
+    "pymongo",
+    "motor",
+    "tornado",
+]
+
+[project.urls]
+Repository = "https://github.com/eguven/mobai"
+
+[project.scripts]
+run_game = "mobai.server.runner:run_game"
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.0",
+    "pytest>=7.0.0",
+    "ipython>=8.0.0",
+]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+indent-width = 4
+extend-exclude = [
+    ".direnv",
+    ".git",
+    ".ruff_cache",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint.isort]
+known-first-party = ["mobai"]
