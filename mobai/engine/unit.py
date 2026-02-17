@@ -12,7 +12,7 @@ class UnitBase(IDComparable):
         self.health = 0
         self.vision = 0
         self.hit = 0
-        self.attack = 0
+        self.damage = 0
         self.target = None  # tile or unit
         self.action_points = 1
 
@@ -43,7 +43,7 @@ class UnitBase(IDComparable):
         data = dict(
             id=self.id, posx=self.x, posy=self.y, type=self.__class__.__name__,
             target=self.target.to_dict(as_target=True) if self.target else None,
-            health=self.health, vision=self.vision, hit=self.hit, attack=self.attack,
+            health=self.health, vision=self.vision, hit=self.hit, attack=self.damage,
             action_points=self.action_points, player=self.player.id,
         )
         if hasattr(self, 'path'):
@@ -134,7 +134,7 @@ class UnitBase(IDComparable):
         assert self.can_hit(self.target)
         assert 0 < self.action_points
         # actually attack
-        self.target.health -= self.attack
+        self.target.health -= self.damage
         self.action_points -= 1
 
     def _turn_attack_step(self):
@@ -210,7 +210,7 @@ class Tower(Building, UnitBase):
         self.health = 100
         self.vision = 2
         self.hit = 1
-        self.attack = 5
+        self.damage = 5
 
 
 class Fort(Tower):
@@ -218,7 +218,7 @@ class Fort(Tower):
         super(Fort, self).__init__(*args)
         self.health = 150
         self.vision = 3
-        self.attack = 5
+        self.damage = 5
 
     def spawn_soldiers(self, count=0):
         for _ in range(count):
@@ -231,7 +231,7 @@ class Soldier(UnitBase):
         self.health = 3
         self.vision = 2
         self.hit = 1
-        self.attack = 1
+        self.damage = 1
         self.path = []
 
     def move(self, next_tile):
