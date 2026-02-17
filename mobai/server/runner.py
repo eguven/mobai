@@ -28,6 +28,7 @@ class Runner:
     def __init__(self, game_id):
         self.game_strid = game_id
         self.game_oid = ObjectId(self.game_strid)
+        self.finish_reason = None
         if not games.find_one(self.game_oid, {"_id": 1}):
             raise TypeError(f'Game "{self.game_strid}" doesn\'t exist')
 
@@ -77,6 +78,7 @@ class Runner:
                 if p1commands is None:
                     p1commands = self.get_player_commands(gs.player1, gs.turn)
                 # once at least one player has submitted, start the timeout clock
+                # NOTE: this None vs [] setup is brittle, properly implement later
                 if (
                     p0commands is not None or p1commands is not None
                 ) and time.time() - wait_start > TURN_TIMEOUT_SECONDS:
@@ -87,6 +89,7 @@ class Runner:
                         game["turn"],
                         timed_out,
                     )
+                    self.finish_reason = "timeout"
                     if p0commands is None:
                         p0commands = []
                     if p1commands is None:
@@ -101,9 +104,13 @@ class Runner:
             try:
                 gs.begin_turn()
             except AssertionError:
-                logger.info('Game "%s" has ended with winner %s', self.game_strid, gs.winner)
+                finish_reason = self.finish_reason or "victory"
+                logger.info('Game "%s" has ended, reason: %s, winner: %s', self.game_strid, finish_reason, gs.winner)
                 state = GameState.serialize(gs)
-                games.update({"_id": self.game_oid}, {"$set": {"state": state, "turn": gs.turn, "status": "finished"}})
+                games.update(
+                    {"_id": self.game_oid},
+                    {"$set": {"state": state, "turn": gs.turn, "status": "finished", "finish_reason": finish_reason}},
+                )
                 return self.run()
             state = GameState.serialize(gs)
             games.update({"_id": self.game_oid}, {"$set": {"state": state, "turn": gs.turn}})

@@ -128,7 +128,7 @@ class GameState:
     def begin_turn(self):
         if self.turn % self.spawn_interval == 0:
             self._spawn_new_units()
-        assert not self.finished, "Game is finished"
+        assert not self.finished, "Game is finished"  # NOTE: raise something better
         for unit in self.all_units:
             unit.action_points = 1
 
