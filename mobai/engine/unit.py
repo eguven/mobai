@@ -4,9 +4,10 @@ from .base import IDComparable
 
 
 class UnitBase(IDComparable):
-    '''Anything that sits on a GameTile is based on this, subclasses/mixins
+    """Anything that sits on a GameTile is based on this, subclasses/mixins
     add further properties. `UUID4.hex` ids
-    '''
+    """
+
     def __init__(self, player):
         self.id = str(uuid.uuid4())
         self.health = 0
@@ -38,16 +39,26 @@ class UnitBase(IDComparable):
     def to_dict(self, as_target=False):
         if as_target:
             return dict(
-                id=self.id, posx=self.x, posy=self.y, type=self.__class__.__name__,
+                id=self.id,
+                posx=self.x,
+                posy=self.y,
+                type=self.__class__.__name__,
             )
         data = dict(
-            id=self.id, posx=self.x, posy=self.y, type=self.__class__.__name__,
+            id=self.id,
+            posx=self.x,
+            posy=self.y,
+            type=self.__class__.__name__,
             target=self.target.to_dict(as_target=True) if self.target else None,
-            health=self.health, vision=self.vision, hit=self.hit, attack=self.damage,
-            action_points=self.action_points, player=self.player.id,
+            health=self.health,
+            vision=self.vision,
+            hit=self.hit,
+            attack=self.damage,
+            action_points=self.action_points,
+            player=self.player.id,
         )
-        if hasattr(self, 'path'):
-            data['path'] = [dict(posx=tile.x, posy=tile.y) for tile in self.path]
+        if hasattr(self, "path"):
+            data["path"] = [dict(posx=tile.x, posy=tile.y) for tile in self.path]
         return data
 
     def positions_within_range(self, reach):
@@ -61,11 +72,11 @@ class UnitBase(IDComparable):
         return positions
 
     def visible_positions(self):
-        '''can see/within vision value'''
+        """can see/within vision value"""
         return self.positions_within_range(self.vision)
 
     def hit_positions(self):
-        '''within hit value'''
+        """within hit value"""
         return self.positions_within_range(self.hit)
 
     def visible_units(self, non_player_only=False):
@@ -84,7 +95,7 @@ class UnitBase(IDComparable):
         return units
 
     def can_act(self):
-        '''has action points'''
+        """has action points"""
         assert 0 <= self.action_points
         return 0 < self.action_points
 
@@ -96,9 +107,10 @@ class UnitBase(IDComparable):
         return pos in self.hit_positions()
 
     def can_move_to(self, target):
-        '''can the unit move to target (tuple/GameTile)'''
+        """can the unit move to target (tuple/GameTile)"""
         # NOTE: needs change if we have units that can move >1 in a turn
         from .tile import GameTile
+
         assert isinstance(target, (tuple, GameTile))
         if not self.mobile:
             return False
@@ -114,6 +126,7 @@ class UnitBase(IDComparable):
 
     def set_target(self, target):
         from .tile import GameTile
+
         if isinstance(target, GameTile):
             assert self.mobile
             self._set_move_target(target)
@@ -124,11 +137,11 @@ class UnitBase(IDComparable):
         self.target = None
 
     def stop(self):
-        '''stop whatever you're doing'''
+        """stop whatever you're doing"""
         self.clear_target()
 
     def attack(self):
-        '''attack current target, decrease action points and target health'''
+        """attack current target, decrease action points and target health"""
         #  sanity checks with target
         assert self.target
         assert self.can_hit(self.target)
@@ -138,7 +151,7 @@ class UnitBase(IDComparable):
         self.action_points -= 1
 
     def _turn_attack_step(self):
-        '''units attack step in turn'''
+        """units attack step in turn"""
         # if I'm a building with no target and available action points
         if isinstance(self, Building) and not self.target and self.can_act():
             self.try_autotarget()
@@ -146,9 +159,9 @@ class UnitBase(IDComparable):
             self.attack()
 
     def _turn_move_step(self):
-        '''units move step in turn'''
+        """units move step in turn"""
         if not self.mobile:
-            assert not hasattr(self, 'path')
+            assert not hasattr(self, "path")
             return
         # mobile, have path, can move, have action points
         elif self.path and self.can_move_to(self.path[0]) and self.can_act():
@@ -157,12 +170,12 @@ class UnitBase(IDComparable):
         # sanity-check
         elif self.path and not self.can_move_to(self.path[0]):
             # this should't really happen right? like, did I teleport?
-            print('WTF: next tile in path unreachable', self, type(self), self.id)  # TODO: logging
+            print("WTF: next tile in path unreachable", self, type(self), self.id)  # TODO: logging
             self.path = []
             return
 
     def _turn_chase_step(self):
-        '''chase as in re-path to target, does not move, does not require action points'''
+        """chase as in re-path to target, does not move, does not require action points"""
         if not isinstance(self.target, UnitBase):
             return
         elif self._map.player_has_vision(self.player, self.target) and self.mobile:
@@ -172,32 +185,33 @@ class UnitBase(IDComparable):
             self.clear_target()
 
     def _turn_finish_step(self):
-        '''currently only clearing target if it's a `GameTile` and unit is there'''
+        """currently only clearing target if it's a `GameTile` and unit is there"""
         from .tile import GameTile
+
         if self.mobile and not self.path and isinstance(self.target, GameTile):
             # sanity-check
             assert self._tile == self.target
             self.clear_target()
 
     def end_of_turn(self, step):
-        if step == 'attack':
+        if step == "attack":
             self._turn_attack_step()
-        elif step == 'move':
+        elif step == "move":
             self._turn_move_step()
-        elif step == 'chase':
+        elif step == "chase":
             self._turn_chase_step()
-        elif step == 'finish':
+        elif step == "finish":
             self._turn_finish_step()
         else:
-            raise AssertionError('Uhm?')
+            raise AssertionError("Uhm?")
 
 
-class Building(object):
+class Building:
     def move(self, *args):
         raise TypeError
 
     def try_autotarget(self):
-        '''try to set a target I can hit'''
+        """try to set a target I can hit"""
         assert not self.target
         can_attack = self.hittable_units()
         if can_attack:
@@ -206,7 +220,7 @@ class Building(object):
 
 class Tower(Building, UnitBase):
     def __init__(self, *args):
-        super(Tower, self).__init__(*args)
+        super().__init__(*args)
         self.health = 100
         self.vision = 2
         self.hit = 1
@@ -215,7 +229,7 @@ class Tower(Building, UnitBase):
 
 class Fort(Tower):
     def __init__(self, *args):
-        super(Fort, self).__init__(*args)
+        super().__init__(*args)
         self.health = 150
         self.vision = 3
         self.damage = 5
@@ -227,7 +241,7 @@ class Fort(Tower):
 
 class Soldier(UnitBase):
     def __init__(self, *args):
-        super(Soldier, self).__init__(*args)
+        super().__init__(*args)
         self.health = 3
         self.vision = 2
         self.hit = 1
@@ -235,7 +249,7 @@ class Soldier(UnitBase):
         self.path = []
 
     def move(self, next_tile):
-        '''move unit between tiles'''
+        """move unit between tiles"""
         assert self.mobile
         assert self.path and self.path[0] == next_tile
         assert self._tile.is_neighbor(next_tile)
@@ -253,9 +267,9 @@ class Soldier(UnitBase):
         self.target = target
 
     def _set_attack_target(self, target):
-        super(Soldier, self)._set_attack_target(target)  # would raise if not if vision
+        super()._set_attack_target(target)  # would raise if not if vision
         self._set_move_target(target._tile)
 
     def stop(self):
-        super(Soldier, self).stop()
+        super().stop()
         self.path = []

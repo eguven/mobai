@@ -1,15 +1,16 @@
 from .base import Player
 from .tile import GameTile
-from .unit import Fort, Tower, Soldier
+from .unit import Fort, Soldier, Tower
 from .util import a_star_search
 
 
-class Map(object):
-    '''The Game map. 36x21 (default), 7:4 ratio with building placements as follows:
+class Map:
+    """The Game map. 36x21 (default), 7:4 ratio with building placements as follows:
     X: 0, 2, 5, 7
     Y: 0, 2, 4
     Buildings on either side are Forts
-    '''
+    """
+
     x_y_ratio = (7, 4)
 
     def __init__(self, x=36, y=21, p0=None, p1=None):
@@ -78,9 +79,7 @@ class Map(object):
     def tiles_visible_by_player(self, player):
         # sorted in direction right > bottom
         tiles = []
-        positions = sorted(
-            sorted(self.vision_by_player(player), key=lambda p: p[1]),
-            key=lambda p: p[0])
+        positions = sorted(sorted(self.vision_by_player(player), key=lambda p: p[1]), key=lambda p: p[0])
         for x, y in positions:
             tiles.append(self.map[y][x])
         return tiles
@@ -90,9 +89,9 @@ class Map(object):
         return pos in self.vision_by_player(player)
 
     def is_valid_position(self, x, y):
-        '''is position within boundaries and does it share an X or Y with any
+        """is position within boundaries and does it share an X or Y with any
         building, which suggests a lane
-        '''
+        """
         if x < 0 or y < 0:
             return False
         if x >= self.size_x or y >= self.size_y:
@@ -102,22 +101,22 @@ class Map(object):
         return False
 
     def is_position_player_side(self, x, y, player):
-        '''left half is player0, right half is player1'''
+        """left half is player0, right half is player1"""
         if self.size_x % 2 == 1:
             raise NotImplementedError
         return (player.id == 0 and x < self.size_x / 2) or (player.id == 1 and x >= self.size_x / 2)
 
     def get_tile(self, x, y):
-        assert self.is_valid_position(x, y), 'x=%s y=%s is not a valid position' % (x, y)
+        assert self.is_valid_position(x, y), "x=%s y=%s is not a valid position" % (x, y)
         return self.map[y][x]
 
     def get_neighbors_of_tile(self, tile):
         return [self.get_tile(x, y) for x, y in tile.neighbor_positions()]
 
     def shortest_path(self, start, end):
-        '''Returns the list of steps on the shortest path between start and end.
+        """Returns the list of steps on the shortest path between start and end.
         Works with GameTile or tuples, return type will match be the input type
-        '''
+        """
         assert type(start) == type(end)
         assert isinstance(start, (tuple, GameTile))
         if isinstance(start, GameTile):
@@ -156,23 +155,23 @@ class Map(object):
         return data
 
     def as_string(self):
-        '''ascii is not dead'''
+        """ascii is not dead"""
         chars = []
         for y in range(self.size_y):
             for x in range(self.size_x):
                 if self.map[y][x] is None:
-                    chars.append(' ')
+                    chars.append(" ")
                     continue
 
                 occupants = self.map[y][x].occupants
                 # this would be incorrect if a new type were added in between Fort and Tower
                 if [u for u in occupants if isinstance(u, Fort)]:
-                    chars.append('F')
+                    chars.append("F")
                 elif [u for u in occupants if isinstance(u, Tower)]:
-                    chars.append('T')
+                    chars.append("T")
                 elif [u for u in occupants if isinstance(u, Soldier)]:
-                    chars.append('S')
+                    chars.append("S")
                 else:
-                    chars.append('·')
-            chars.append('\n')
-        return ' ' + ' '.join(chars)
+                    chars.append("·")
+            chars.append("\n")
+        return " " + " ".join(chars)

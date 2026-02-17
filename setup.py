@@ -1,40 +1,40 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
-    name='mobai',
-    version='0.1.0.dev0',
-    description='A very simple moba-inspired game engine for bots',
-    long_description=open('README.md', 'r').read(),
-    url='https://github.com/eguven/mobai',
-    author='Eren Güven',
-    author_email='erenguven0@gmail.com',
-    license='MIT',
+    name="mobai",
+    version="0.1.0.dev0",
+    description="A very simple moba-inspired game engine for bots",
+    long_description=open("README.md").read(),
+    url="https://github.com/eguven/mobai",
+    author="Eren Güven",
+    author_email="erenguven0@gmail.com",
+    license="MIT",
     packages=find_packages(),
     install_requires=[
-        'Click',
-        'pymongo',
+        "Click",
+        "pymongo",
     ],
     entry_points={
-        'console_scripts': [
-            'run_game = mobai.runner.runner:run_game',
+        "console_scripts": [
+            "run_game = mobai.runner.runner:run_game",
         ]
     },
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
-        'Intended Audience :: Developers',
-        'Intended Audience :: Education',
-        'Intended Audience :: Science/Research',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: Implementation :: CPython',
-        'Topic :: Games/Entertainment',
-        'Topic :: Games/Entertainment :: Turn Based Strategy',
-        'Topic :: Scientific/Engineering :: Artificial Intelligence',
-        'Topic :: Software Development :: Libraries',
+        "Development Status :: 2 - Pre-Alpha",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Topic :: Games/Entertainment",
+        "Topic :: Games/Entertainment :: Turn Based Strategy",
+        "Topic :: Scientific/Engineering :: Artificial Intelligence",
+        "Topic :: Software Development :: Libraries",
     ],
-    keywords='game engine bots ai moba',
+    keywords="game engine bots ai moba",
 )

@@ -1,8 +1,9 @@
 from .unit import Building
 
 
-class GameTile(object):
-    '''A tile in map. Has position (reverse of array indices) and occupants'''
+class GameTile:
+    """A tile in map. Has position (reverse of array indices) and occupants"""
+
     def __init__(self, x=None, y=None, occupants=None, _map=None):
         assert x is not None and y is not None
         self.x = x
@@ -21,13 +22,15 @@ class GameTile(object):
         return not self.__eq__(other)
 
     def __str__(self):
-        return 'GameTile(%dx%d)' % (self.x, self.y)
+        return "GameTile(%dx%d)" % (self.x, self.y)
 
     def to_dict(self, as_target=False):
         if as_target:
             return dict(posx=self.x, posy=self.y, type=self.__class__.__name__)
         return dict(
-            posx=self.x, posy=self.y, occupants=[unit.to_dict() for unit in self.occupants],
+            posx=self.x,
+            posy=self.y,
+            occupants=[unit.to_dict() for unit in self.occupants],
         )
 
     def add_unit(self, unit):
@@ -45,7 +48,7 @@ class GameTile(object):
         unit._tile = None
 
     def grid_index(self):
-        '''in 2d array, x is the second index (column) and y is the first (row)'''
+        """in 2d array, x is the second index (column) and y is the first (row)"""
         return (self.y, self.x)
 
     def neighbor_positions(self):
@@ -63,9 +66,9 @@ class GameTile(object):
         return self._map.shortest_path(self, tile)
 
     def units_by_player(self, player, filters=None, sort_key=None):
-        '''return an iterable of units of the tile for player, optional filter:
+        """return an iterable of units of the tile for player, optional filter:
         `if unit.__class___ in filters`
-        '''
+        """
         player_units = [unit for unit in self.occupants if unit.player == player]
         if filters is not None and filters:
             player_units = [unit for unit in player_units if unit.__class__ in filters]

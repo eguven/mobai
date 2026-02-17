@@ -1,7 +1,7 @@
 import heapq
 
 
-class PriorityQueue(object):
+class PriorityQueue:
     def __init__(self):
         self.elements = []
 
@@ -22,7 +22,7 @@ def heuristic(a, b):
 
 
 def a_star_search(map, start, end):
-    '''A* search. Should be bound to map'''
+    """A* search. Should be bound to map"""
     assert isinstance(start, tuple) and isinstance(end, tuple)
     frontier = PriorityQueue()
     frontier.put(start, 0)
