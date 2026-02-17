@@ -10,15 +10,15 @@ from mobai.engine.game import GameState
 logging.basicConfig(format="%(asctime)s %(levelname)-8s %(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+TURN_TIMEOUT_SECONDS = 10
+
 mc = MongoClient(w=1)
 games = mc.mobai.games
 commands = mc.mobai.commands
 
 
 class Runner:
-    """A game runner that retrieves player commands and progresses the game,
-    mongodb backed
-    """
+    """A game runner that retrieves player commands and progresses the game, mongodb backed"""
 
     @classmethod
     def start_game(cls, game_id):
@@ -76,10 +76,21 @@ class Runner:
                     p0commands = self.get_player_commands(gs.player0, gs.turn)
                 if p1commands is None:
                     p1commands = self.get_player_commands(gs.player1, gs.turn)
-                if p0commands or p1commands:
-                    if time.time() - wait_start > 10:
-                        # TODO: stop game
-                        pass
+                # once at least one player has submitted, start the timeout clock
+                if (
+                    p0commands is not None or p1commands is not None
+                ) and time.time() - wait_start > TURN_TIMEOUT_SECONDS:
+                    timed_out = [p for p, cmds in [(0, p0commands), (1, p1commands)] if cmds is None]
+                    logger.info(
+                        'Game "%s" turn "%d" timed out, missing commands from player(s): %s',
+                        self.game_strid,
+                        game["turn"],
+                        timed_out,
+                    )
+                    if p0commands is None:
+                        p0commands = []
+                    if p1commands is None:
+                        p1commands = []
             logger.info('Game "%s" turn "%d" applying commands', self.game_strid, game["turn"])
             _p0_commands_result = gs.commands_from_player(gs.player0, p0commands)
             _p1_commands_result = gs.commands_from_player(gs.player1, p1commands)
