@@ -154,7 +154,7 @@ class GameHandler(BaseHandler):
             return
 
         if "commands" not in self._data or not isinstance(self._data["commands"], list):
-            print(self._data["commands"])
+            logging.warning("Invalid commands payload: %s", self._data.get("commands"))
             self.set_status_and_write(400, {"error": "commands property doesn't exist or is not a list"})
             return
 

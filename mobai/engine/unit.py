@@ -1,6 +1,9 @@
+import logging
 import uuid
 
 from .base import IDComparable
+
+logger = logging.getLogger(__name__)
 
 
 class UnitBase(IDComparable):
@@ -170,7 +173,7 @@ class UnitBase(IDComparable):
         # sanity-check
         elif self.path and not self.can_move_to(self.path[0]):
             # this should't really happen right? like, did I teleport?
-            print("WTF: next tile in path unreachable", self, type(self), self.id)  # TODO: logging
+            logger.warning("WTF: next tile in path unreachable: %s %s %s", self, type(self), self.id)
             self.path = []
             return
 
